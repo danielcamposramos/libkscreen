@@ -24,8 +24,20 @@ class KSCREEN_EXPORT Mode : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
+    Q_PROPERTY(Stereo3D stereo3D READ stereo3D WRITE setStereo3D NOTIFY modeChanged)
 
 public:
+    /**
+     * The HDMI 3D structure the mode is sent in: a 3D mode repeats a 2D mode's size and
+     * refresh rate, and choosing it turns the display's 3D on. Never chosen automatically.
+     */
+    enum class Stereo3D {
+        None,
+        SideBySideHalf,
+        TopAndBottom,
+    };
+    Q_ENUM(Stereo3D)
+
     explicit Mode();
     ~Mode() override;
 
@@ -42,6 +54,9 @@ public:
 
     float refreshRate() const;
     void setRefreshRate(float refresh);
+
+    Stereo3D stereo3D() const;
+    void setStereo3D(Stereo3D stereo3D);
 
     bool operator==(const Mode &other) const;
 

@@ -30,6 +30,9 @@ public:
     enum class Flag {
         Custom = 0x1,
         ReducedBlanking = 0x2,
+        // the HDMI 3D structure a mode is sent in (kde_output_device_mode_v2.flags)
+        Stereo3DSideBySideHalf = 0x4,
+        Stereo3DTopAndBottom = 0x8,
     };
     Q_ENUM(Flag);
     Q_DECLARE_FLAGS(Flags, Flag)

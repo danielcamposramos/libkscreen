@@ -190,6 +190,11 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
         mode->setRefreshRate(wlMode->refreshRate());
         mode->setSize(wlMode->size());
         mode->setName(modeName(wlMode));
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DSideBySideHalf) {
+            mode->setStereo3D(Mode::Stereo3D::SideBySideHalf);
+        } else if (wlMode->flags() & ModeInfo::Flag::Stereo3DTopAndBottom) {
+            mode->setStereo3D(Mode::Stereo3D::TopAndBottom);
+        }
 
         if (m_mode == wlMode) {
             currentModeId = wlMode->id();

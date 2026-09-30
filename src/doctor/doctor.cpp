@@ -726,6 +726,11 @@ void Doctor::showOutputs() const
             if (mode == output->preferredMode()) {
                 name = name + QLatin1Char('!');
             }
+            if (mode->stereo3D() == Mode::Stereo3D::SideBySideHalf) {
+                name = name + QStringLiteral("(3D-SBS)");
+            } else if (mode->stereo3D() == Mode::Stereo3D::TopAndBottom) {
+                name = name + QStringLiteral("(3D-TaB)");
+            }
             cout << " " << mode->id() << ":" << name << " ";
         }
         cout << endl;
