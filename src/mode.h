@@ -35,6 +35,7 @@ public:
         None,
         SideBySideHalf,
         TopAndBottom,
+        FramePacking,
     };
     Q_ENUM(Stereo3D)
 

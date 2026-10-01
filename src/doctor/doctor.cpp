@@ -730,6 +730,8 @@ void Doctor::showOutputs() const
                 name = name + QStringLiteral("(3D-SBS)");
             } else if (mode->stereo3D() == Mode::Stereo3D::TopAndBottom) {
                 name = name + QStringLiteral("(3D-TaB)");
+            } else if (mode->stereo3D() == Mode::Stereo3D::FramePacking) {
+                name = name + QStringLiteral("(3D-FP)");
             }
             cout << " " << mode->id() << ":" << name << " ";
         }

@@ -56,12 +56,16 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_flags(uint32_t flags)
     if (flags & KDE_OUTPUT_DEVICE_MODE_V2_FLAGS_REDUCED_BLANKING) {
         m_flags |= ModeInfo::Flag::ReducedBlanking;
     }
-    // stereo_side_by_side_half and stereo_top_and_bottom (plasma-wayland-protocols, stereo3d branch)
+    // stereo_side_by_side_half, stereo_top_and_bottom and stereo_frame_packing
+    // (plasma-wayland-protocols, stereo3d branch)
     if (flags & 0x4) {
         m_flags |= ModeInfo::Flag::Stereo3DSideBySideHalf;
     }
     if (flags & 0x8) {
         m_flags |= ModeInfo::Flag::Stereo3DTopAndBottom;
+    }
+    if (flags & 0x10) {
+        m_flags |= ModeInfo::Flag::Stereo3DFramePacking;
     }
 }
 
