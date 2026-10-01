@@ -196,6 +196,8 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
             mode->setStereo3D(Mode::Stereo3D::TopAndBottom);
         } else if (wlMode->flags() & ModeInfo::Flag::Stereo3DFramePacking) {
             mode->setStereo3D(Mode::Stereo3D::FramePacking);
+        } else if (wlMode->flags() & ModeInfo::Flag::Stereo3DSideBySideFull) {
+            mode->setStereo3D(Mode::Stereo3D::SideBySideFull);
         }
 
         if (m_mode == wlMode) {

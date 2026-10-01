@@ -732,6 +732,8 @@ void Doctor::showOutputs() const
                 name = name + QStringLiteral("(3D-TaB)");
             } else if (mode->stereo3D() == Mode::Stereo3D::FramePacking) {
                 name = name + QStringLiteral("(3D-FP)");
+            } else if (mode->stereo3D() == Mode::Stereo3D::SideBySideFull) {
+                name = name + QStringLiteral("(3D-SBS-full)");
             }
             cout << " " << mode->id() << ":" << name << " ";
         }
