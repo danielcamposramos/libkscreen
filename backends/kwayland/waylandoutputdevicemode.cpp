@@ -50,6 +50,35 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_removed()
 
 void WaylandOutputDeviceMode::kde_output_device_mode_v2_flags(uint32_t flags)
 {
+    m_flags = {};
+    if (flags & 0x40) {
+        m_flags |= ModeInfo::Flag::Stereo3DAnaglyphModern;
+    }
+    if (flags & 0x80) {
+        m_flags |= ModeInfo::Flag::Stereo3DAnaglyphCrt;
+    }
+    if (flags & 0x100) {
+        m_flags |= ModeInfo::Flag::Stereo3DRowsLeftFirst;
+    }
+    if (flags & 0x200) {
+        m_flags |= ModeInfo::Flag::Stereo3DRowsRightFirst;
+    }
+    if (flags & 0x400) {
+        m_flags |= ModeInfo::Flag::Stereo3DColumnsLeftFirst;
+    }
+    if (flags & 0x800) {
+        m_flags |= ModeInfo::Flag::Stereo3DColumnsRightFirst;
+    }
+    if (flags & 0x1000) {
+        m_flags |= ModeInfo::Flag::Stereo3DCheckerboardLeftFirst;
+    }
+    if (flags & 0x2000) {
+        m_flags |= ModeInfo::Flag::Stereo3DCheckerboardRightFirst;
+    }
+    if (flags & 0x4000) {
+        m_flags |= ModeInfo::Flag::VirtualStereo;
+    }
+
     if (flags & KDE_OUTPUT_DEVICE_MODE_V2_FLAGS_CUSTOM) {
         m_flags |= ModeInfo::Flag::Custom;
     }

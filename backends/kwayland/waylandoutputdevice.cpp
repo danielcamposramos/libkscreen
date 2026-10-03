@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(23)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(24)
 {
     initialize();
 }
@@ -200,6 +200,32 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
             mode->setStereo3D(Mode::Stereo3D::SideBySideFull);
         }
 
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DAnaglyphModern) {
+            mode->setStereo3D(Mode::Stereo3D::AnaglyphModern);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DAnaglyphCrt) {
+            mode->setStereo3D(Mode::Stereo3D::AnaglyphCrt);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DRowsLeftFirst) {
+            mode->setStereo3D(Mode::Stereo3D::RowsLeftFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DRowsRightFirst) {
+            mode->setStereo3D(Mode::Stereo3D::RowsRightFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DColumnsLeftFirst) {
+            mode->setStereo3D(Mode::Stereo3D::ColumnsLeftFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DColumnsRightFirst) {
+            mode->setStereo3D(Mode::Stereo3D::ColumnsRightFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DCheckerboardLeftFirst) {
+            mode->setStereo3D(Mode::Stereo3D::CheckerboardLeftFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DCheckerboardRightFirst) {
+            mode->setStereo3D(Mode::Stereo3D::CheckerboardRightFirst);
+        }
+        mode->setVirtualStereo(wlMode->flags() & ModeInfo::Flag::VirtualStereo);
+
         if (m_mode == wlMode) {
             currentModeId = wlMode->id();
         }
@@ -276,13 +302,15 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setAutomaticBrightness(m_autoBrightness);
     output->setHdrIccProfilePath(m_hdrIccProfilePath);
     output->setHdrColorProfileSource(Output::ColorProfileSource(m_hdrColorProfileSource));
+    output->setAnaglyph(m_anaglyph);
+    output->setOtherStereoFormats(m_otherStereoFormats);
     output->setAbmLevel(m_abmLevel);
 
     updateKScreenModes(output);
 
     m_customModes.clear();
     for (const auto &mode : m_modes) {
-        if (!(mode->flags() & ModeInfo::Flag::Custom)) {
+        if (!(mode->flags() & ModeInfo::Flag::Custom) || (mode->flags() & ModeInfo::Flag::VirtualStereo)) {
             continue;
         }
         m_customModes.push_back(ModeInfo{
@@ -471,6 +499,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_HDR_COLOR_PROFILE_SOURCE_SINCE_VERSION
         && m_hdrColorProfileSource != uint32_t(output->hdrColorProfileSource())) {
         wlConfig->set_hdr_color_profile_source(object(), uint32_t(output->hdrColorProfileSource()));
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_FORMATS_SINCE_VERSION
+        && (m_anaglyph != output->anaglyph() || m_otherStereoFormats != output->otherStereoFormats())) {
+        wlConfig->set_stereo_formats(object(), output->anaglyph(), output->otherStereoFormats());
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_ABM_LEVEL_SINCE_VERSION && m_abmLevel != output->abmLevel()) {
         wlConfig->set_abm_level(object(), output->abmLevel());
@@ -695,6 +727,12 @@ void WaylandOutputDevice::kde_output_device_v2_hdr_icc_profile_path(const QStrin
 void WaylandOutputDevice::kde_output_device_v2_hdr_color_profile_source(uint32_t source)
 {
     m_hdrColorProfileSource = source;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_stereo_formats(uint32_t anaglyph, uint32_t otherStereoFormats)
+{
+    m_anaglyph = anaglyph == 1;
+    m_otherStereoFormats = otherStereoFormats == 1;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_abm_level(uint32_t level)

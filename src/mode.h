@@ -24,6 +24,7 @@ class KSCREEN_EXPORT Mode : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
+    Q_PROPERTY(bool virtualStereo READ virtualStereo WRITE setVirtualStereo NOTIFY modeChanged)
     Q_PROPERTY(Stereo3D stereo3D READ stereo3D WRITE setStereo3D NOTIFY modeChanged)
 
 public:
@@ -37,6 +38,15 @@ public:
         TopAndBottom,
         FramePacking,
         SideBySideFull,
+        AnaglyphModern,
+        AnaglyphCrt,
+        RowsLeftFirst,
+        RowsRightFirst,
+        ColumnsLeftFirst,
+        ColumnsRightFirst,
+        CheckerboardLeftFirst,
+        CheckerboardRightFirst,
+
     };
     Q_ENUM(Stereo3D)
 
@@ -57,6 +67,8 @@ public:
     float refreshRate() const;
     void setRefreshRate(float refresh);
 
+    bool virtualStereo() const;
+    void setVirtualStereo(bool value);
     Stereo3D stereo3D() const;
     void setStereo3D(Stereo3D stereo3D);
 

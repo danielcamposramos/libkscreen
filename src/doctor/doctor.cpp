@@ -631,6 +631,18 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() == 4 && (subcmd == "anaglyph" || subcmd == "otherStereoFormats")) {
+                    if (ops[3] != "enable" && ops[3] != "disable") {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid input: Only 'enable' and 'disable' are allowed";
+                        qApp->exit(9);
+                        return;
+                    }
+                    if (subcmd == "anaglyph") {
+                        output->setAnaglyph(ops[3] == "enable");
+                    } else {
+                        output->setOtherStereoFormats(ops[3] == "enable");
+                    }
+                    m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "abm") {
                     bool ok = false;
                     const uint32_t level = ops[3].toUInt(&ok);
@@ -734,6 +746,9 @@ void Doctor::showOutputs() const
                 name = name + QStringLiteral("(3D-FP)");
             } else if (mode->stereo3D() == Mode::Stereo3D::SideBySideFull) {
                 name = name + QStringLiteral("(3D-SBS-full)");
+            }
+            if (mode->virtualStereo()) {
+                name += QStringLiteral("(virtual-3D:%1)").arg(int(mode->stereo3D()));
             }
             cout << " " << mode->id() << ":" << name << " ";
         }
