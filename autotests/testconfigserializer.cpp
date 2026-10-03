@@ -96,6 +96,60 @@ private Q_SLOTS:
         QCOMPARE(currSize[QLatin1String("height")].toInt(), screen->currentSize().height());
     }
 
+    void testStereoNeverPreferred()
+    {
+        KScreen::ModePtr base(new KScreen::Mode);
+        base->setId(QStringLiteral("2D"));
+        base->setSize(QSize(1920, 1080));
+        base->setRefreshRate(60);
+        auto twin = base->clone();
+        twin->setId(QStringLiteral("virtual"));
+        twin->setSize(QSize(3840, 2160));
+        twin->setRefreshRate(120);
+        twin->setVirtualStereo(true);
+        auto hdmi = twin->clone();
+        hdmi->setId(QStringLiteral("HDMI"));
+        hdmi->setVirtualStereo(false);
+        hdmi->setStereo3D(KScreen::Mode::Stereo3D::SideBySideHalf);
+        KScreen::OutputPtr output(new KScreen::Output);
+        output->setModes({{base->id(), base}, {twin->id(), twin}, {hdmi->id(), hdmi}});
+        QCOMPARE(output->preferredModeId(), base->id());
+        output->setPreferredModes({twin->id(), hdmi->id()});
+        QCOMPARE(output->preferredModeId(), base->id());
+    }
+
+    void testVirtualStereo()
+    {
+        KScreen::ModePtr mode(new KScreen::Mode);
+        mode->setSize(QSize(1920, 1080));
+        mode->setRefreshRate(60);
+        mode->setStereo3D(KScreen::Mode::Stereo3D::SideBySideHalf);
+        const auto hdmi = mode->clone();
+        mode->setVirtualStereo(true);
+        QVERIFY(!(*mode == *hdmi));
+        const auto twin = mode->clone();
+        QVERIFY(twin->virtualStereo());
+        QVERIFY(*mode == *twin);
+        QCOMPARE(KScreen::ConfigSerializer::serializeMode(mode)[QStringLiteral("virtualStereo")].toBool(), true);
+
+        KScreen::OutputPtr output(new KScreen::Output);
+        QVERIFY(!output->anaglyph());
+        QVERIFY(!output->otherStereoFormats());
+        output->setAnaglyph(true);
+        output->setOtherStereoFormats(true);
+        const auto cloned = output->clone();
+        QVERIFY(cloned->anaglyph());
+        QVERIFY(cloned->otherStereoFormats());
+        const auto json = KScreen::ConfigSerializer::serializeOutput(output);
+        QCOMPARE(json[QStringLiteral("anaglyph")].toBool(), true);
+        QCOMPARE(json[QStringLiteral("otherStereoFormats")].toBool(), true);
+        output->setAnaglyph(false);
+        output->setOtherStereoFormats(false);
+        output->apply(cloned);
+        QVERIFY(output->anaglyph());
+        QVERIFY(output->otherStereoFormats());
+    }
+
     void testSerializeMode()
     {
         KScreen::ModePtr mode(new KScreen::Mode);

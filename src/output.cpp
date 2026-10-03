@@ -91,6 +91,8 @@ public:
         , sharpness(other.sharpness)
         , customModes(other.customModes)
         , automaticBrightness(other.automaticBrightness)
+        , anaglyph(other.anaglyph)
+        , otherStereoFormats(other.otherStereoFormats)
         , abmLevel(other.abmLevel)
     {
         const auto otherModeList = other.modeList;
@@ -162,6 +164,8 @@ public:
     double sharpness = 0;
     QList<ModeInfo> customModes;
     bool automaticBrightness = false;
+    bool anaglyph = false;
+    bool otherStereoFormats = false;
     uint32_t abmLevel = 0;
 };
 
@@ -200,6 +204,9 @@ QString Output::Private::biggestMode(const ModeList &modes) const
     int area, total = 0;
     KScreen::ModePtr biggest;
     for (const KScreen::ModePtr &mode : modes) {
+        if (mode->virtualStereo() || mode->stereo3D() != Mode::Stereo3D::None) {
+            continue;
+        }
         area = mode->size().width() * mode->size().height();
         if (area < total) {
             continue;
@@ -452,6 +459,9 @@ QString Output::preferredModeId() const
     KScreen::ModePtr candidateMode;
     for (const QString &modeId : std::as_const(d->preferredModes)) {
         candidateMode = mode(modeId);
+        if (!candidateMode || candidateMode->virtualStereo() || candidateMode->stereo3D() != Mode::Stereo3D::None) {
+            continue;
+        }
         const int area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
             continue;
@@ -468,7 +478,9 @@ QString Output::preferredModeId() const
         biggest = candidateMode;
     }
 
-    Q_ASSERT_X(biggest, "preferredModeId", "biggest mode must exist");
+    if (!biggest) {
+        return d->biggestMode(modes());
+    }
 
     d->preferredMode = biggest->id();
     return d->preferredMode;
@@ -1101,6 +1113,32 @@ void Output::setAutomaticBrightness(bool enable)
     }
 }
 
+bool Output::anaglyph() const
+{
+    return d->anaglyph;
+}
+
+void Output::setAnaglyph(bool enabled)
+{
+    if (d->anaglyph != enabled) {
+        d->anaglyph = enabled;
+        Q_EMIT anaglyphChanged();
+    }
+}
+
+bool Output::otherStereoFormats() const
+{
+    return d->otherStereoFormats;
+}
+
+void Output::setOtherStereoFormats(bool enabled)
+{
+    if (d->otherStereoFormats != enabled) {
+        d->otherStereoFormats = enabled;
+        Q_EMIT otherStereoFormatsChanged();
+    }
+}
+
 uint32_t Output::abmLevel() const
 {
     return d->abmLevel;
@@ -1302,6 +1340,14 @@ void Output::apply(const OutputPtr &other)
     if (d->hdrColorProfileSource != other->d->hdrColorProfileSource) {
         changes << &Output::hdrColorProfileSourceChanged;
         setHdrColorProfileSource(other->d->hdrColorProfileSource);
+    }
+    if (d->anaglyph != other->d->anaglyph) {
+        changes << &Output::anaglyphChanged;
+        setAnaglyph(other->d->anaglyph);
+    }
+    if (d->otherStereoFormats != other->d->otherStereoFormats) {
+        changes << &Output::otherStereoFormatsChanged;
+        setOtherStereoFormats(other->d->otherStereoFormats);
     }
     if (d->abmLevel != other->d->abmLevel) {
         changes << &Output::abmLevelChanged;

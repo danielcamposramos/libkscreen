@@ -86,6 +86,8 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("clones")] = serializeList(output->clones());
     // obj[QLatin1String("edid")] = output->edid()->raw();
     obj[QLatin1String("sizeMM")] = serializeSize(output->sizeMm());
+    obj[QLatin1String("anaglyph")] = output->anaglyph();
+    obj[QLatin1String("otherStereoFormats")] = output->otherStereoFormats();
     obj[QLatin1String("replicationSource")] = output->replicationSource();
 
     QJsonArray modes;
@@ -142,6 +144,7 @@ QJsonObject ConfigSerializer::serializeMode(const ModePtr &mode)
     obj[QLatin1String("name")] = mode->name();
     obj[QLatin1String("size")] = serializeSize(mode->size());
     obj[QLatin1String("refreshRate")] = mode->refreshRate();
+    obj[QLatin1String("virtualStereo")] = mode->virtualStereo();
     obj[QLatin1String("stereo3D")] = static_cast<int>(mode->stereo3D());
 
     return obj;
@@ -322,6 +325,10 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setOverscan(value.toUInt());
         } else if (key == QLatin1String("vrrPolicy")) {
             output->setVrrPolicy(static_cast<Output::VrrPolicy>(value.toInt()));
+        } else if (key == QLatin1String("anaglyph")) {
+            output->setAnaglyph(value.toBool());
+        } else if (key == QLatin1String("otherStereoFormats")) {
+            output->setOtherStereoFormats(value.toBool());
         } else if (key == QLatin1String("rgbRange")) {
             output->setRgbRange(static_cast<Output::RgbRange>(value.toInt()));
         } else if (key == "hdr"_L1) {
@@ -365,6 +372,8 @@ ModePtr ConfigSerializer::deserializeMode(const QDBusArgument &arg)
             mode->setSize(deserializeSize(value.value<QDBusArgument>()));
         } else if (key == QLatin1String("refreshRate")) {
             mode->setRefreshRate(value.toFloat());
+        } else if (key == QLatin1String("virtualStereo")) {
+            mode->setVirtualStereo(value.toBool());
         } else if (key == QLatin1String("stereo3D")) {
             mode->setStereo3D(static_cast<Mode::Stereo3D>(value.toInt()));
         } else {

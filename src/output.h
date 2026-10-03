@@ -35,6 +35,15 @@ public:
         Stereo3DTopAndBottom = 0x8,
         Stereo3DFramePacking = 0x10,
         Stereo3DSideBySideFull = 0x20,
+        Stereo3DAnaglyphModern = 0x40,
+        Stereo3DAnaglyphCrt = 0x80,
+        Stereo3DRowsLeftFirst = 0x100,
+        Stereo3DRowsRightFirst = 0x200,
+        Stereo3DColumnsLeftFirst = 0x400,
+        Stereo3DColumnsRightFirst = 0x800,
+        Stereo3DCheckerboardLeftFirst = 0x1000,
+        Stereo3DCheckerboardRightFirst = 0x2000,
+        VirtualStereo = 0x4000,
     };
     Q_ENUM(Flag);
     Q_DECLARE_FLAGS(Flags, Flag)
@@ -49,6 +58,8 @@ public:
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool anaglyph READ anaglyph WRITE setAnaglyph NOTIFY anaglyphChanged)
+    Q_PROPERTY(bool otherStereoFormats READ otherStereoFormats WRITE setOtherStereoFormats NOTIFY otherStereoFormatsChanged)
     Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 public:
     Q_PROPERTY(int id READ id CONSTANT)
@@ -137,6 +148,7 @@ public:
         AutomaticBrightness = 1 << 14,
         HdrIccProfile = 1 << 15,
         AbmLevel = 1 << 16,
+        VirtualStereo = 1 << 17,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -623,6 +635,10 @@ public:
     bool automaticBrightness() const;
     void setAutomaticBrightness(bool enable);
 
+    bool anaglyph() const;
+    void setAnaglyph(bool enabled);
+    bool otherStereoFormats() const;
+    void setOtherStereoFormats(bool enabled);
     uint32_t abmLevel() const;
     void setAbmLevel(uint32_t level);
 
@@ -673,6 +689,8 @@ Q_SIGNALS:
     void customModesChanged();
     void automaticBrightnessChanged();
     void hdrIccProfilePathChanged();
+    void anaglyphChanged();
+    void otherStereoFormatsChanged();
     void abmLevelChanged();
 
     /** The mode list changed.
