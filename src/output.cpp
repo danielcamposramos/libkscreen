@@ -93,6 +93,10 @@ public:
         , automaticBrightness(other.automaticBrightness)
         , anaglyph(other.anaglyph)
         , otherStereoFormats(other.otherStereoFormats)
+        , stereoPairPartner(other.stereoPairPartner)
+        , stereoPairMode(other.stereoPairMode)
+        , stereoPairRole(other.stereoPairRole)
+        , stereoPairReflection(other.stereoPairReflection)
         , abmLevel(other.abmLevel)
     {
         const auto otherModeList = other.modeList;
@@ -166,6 +170,10 @@ public:
     bool automaticBrightness = false;
     bool anaglyph = false;
     bool otherStereoFormats = false;
+    QString stereoPairPartner;
+    Output::StereoPairMode stereoPairMode = Output::StereoPairMode::None;
+    Output::StereoPairRole stereoPairRole = Output::StereoPairRole::Left;
+    Output::StereoPairReflection stereoPairReflection = Output::StereoPairReflection::None;
     uint32_t abmLevel = 0;
 };
 
@@ -1139,6 +1147,58 @@ void Output::setOtherStereoFormats(bool enabled)
     }
 }
 
+QString Output::stereoPairPartner() const
+{
+    return d->stereoPairPartner;
+}
+
+void Output::setStereoPairPartner(const QString &partner)
+{
+    if (d->stereoPairPartner != partner) {
+        d->stereoPairPartner = partner;
+        Q_EMIT stereoPairChanged();
+    }
+}
+
+Output::StereoPairMode Output::stereoPairMode() const
+{
+    return d->stereoPairMode;
+}
+
+void Output::setStereoPairMode(StereoPairMode mode)
+{
+    if (d->stereoPairMode != mode) {
+        d->stereoPairMode = mode;
+        Q_EMIT stereoPairChanged();
+    }
+}
+
+Output::StereoPairRole Output::stereoPairRole() const
+{
+    return d->stereoPairRole;
+}
+
+void Output::setStereoPairRole(StereoPairRole role)
+{
+    if (d->stereoPairRole != role) {
+        d->stereoPairRole = role;
+        Q_EMIT stereoPairChanged();
+    }
+}
+
+Output::StereoPairReflection Output::stereoPairReflection() const
+{
+    return d->stereoPairReflection;
+}
+
+void Output::setStereoPairReflection(StereoPairReflection reflection)
+{
+    if (d->stereoPairReflection != reflection) {
+        d->stereoPairReflection = reflection;
+        Q_EMIT stereoPairChanged();
+    }
+}
+
 uint32_t Output::abmLevel() const
 {
     return d->abmLevel;
@@ -1348,6 +1408,16 @@ void Output::apply(const OutputPtr &other)
     if (d->otherStereoFormats != other->d->otherStereoFormats) {
         changes << &Output::otherStereoFormatsChanged;
         setOtherStereoFormats(other->d->otherStereoFormats);
+    }
+    if (d->stereoPairPartner != other->d->stereoPairPartner
+        || d->stereoPairMode != other->d->stereoPairMode
+        || d->stereoPairRole != other->d->stereoPairRole
+        || d->stereoPairReflection != other->d->stereoPairReflection) {
+        changes << &Output::stereoPairChanged;
+        setStereoPairPartner(other->d->stereoPairPartner);
+        setStereoPairMode(other->d->stereoPairMode);
+        setStereoPairRole(other->d->stereoPairRole);
+        setStereoPairReflection(other->d->stereoPairReflection);
     }
     if (d->abmLevel != other->d->abmLevel) {
         changes << &Output::abmLevelChanged;

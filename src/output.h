@@ -44,6 +44,8 @@ public:
         Stereo3DCheckerboardLeftFirst = 0x1000,
         Stereo3DCheckerboardRightFirst = 0x2000,
         VirtualStereo = 0x4000,
+        Stereo3DSequentialLeftFirst = 0x40000,
+        Stereo3DSequentialRightFirst = 0x80000,
     };
     Q_ENUM(Flag);
     Q_DECLARE_FLAGS(Flags, Flag)
@@ -60,6 +62,10 @@ class KSCREEN_EXPORT Output : public QObject
     Q_OBJECT
     Q_PROPERTY(bool anaglyph READ anaglyph WRITE setAnaglyph NOTIFY anaglyphChanged)
     Q_PROPERTY(bool otherStereoFormats READ otherStereoFormats WRITE setOtherStereoFormats NOTIFY otherStereoFormatsChanged)
+    Q_PROPERTY(QString stereoPairPartner READ stereoPairPartner WRITE setStereoPairPartner NOTIFY stereoPairChanged)
+    Q_PROPERTY(StereoPairMode stereoPairMode READ stereoPairMode WRITE setStereoPairMode NOTIFY stereoPairChanged)
+    Q_PROPERTY(StereoPairRole stereoPairRole READ stereoPairRole WRITE setStereoPairRole NOTIFY stereoPairChanged)
+    Q_PROPERTY(StereoPairReflection stereoPairReflection READ stereoPairReflection WRITE setStereoPairReflection NOTIFY stereoPairChanged)
     Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 public:
     Q_PROPERTY(int id READ id CONSTANT)
@@ -153,6 +159,13 @@ public:
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
     Q_FLAG(Capabilities)
+
+    enum class StereoPairMode { None, DualProjection, MirrorRig, Ized3d };
+    Q_ENUM(StereoPairMode)
+    enum class StereoPairRole { Left, Right, Back, Front };
+    Q_ENUM(StereoPairRole)
+    enum class StereoPairReflection { None, Horizontal, Vertical };
+    Q_ENUM(StereoPairReflection)
 
     enum class VrrPolicy {
         Never = 0,
@@ -639,6 +652,14 @@ public:
     void setAnaglyph(bool enabled);
     bool otherStereoFormats() const;
     void setOtherStereoFormats(bool enabled);
+    QString stereoPairPartner() const;
+    void setStereoPairPartner(const QString &partner);
+    StereoPairMode stereoPairMode() const;
+    void setStereoPairMode(StereoPairMode mode);
+    StereoPairRole stereoPairRole() const;
+    void setStereoPairRole(StereoPairRole role);
+    StereoPairReflection stereoPairReflection() const;
+    void setStereoPairReflection(StereoPairReflection reflection);
     uint32_t abmLevel() const;
     void setAbmLevel(uint32_t level);
 
@@ -691,6 +712,7 @@ Q_SIGNALS:
     void hdrIccProfilePathChanged();
     void anaglyphChanged();
     void otherStereoFormatsChanged();
+    void stereoPairChanged();
     void abmLevelChanged();
 
     /** The mode list changed.

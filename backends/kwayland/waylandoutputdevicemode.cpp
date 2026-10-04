@@ -78,6 +78,12 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_flags(uint32_t flags)
     if (flags & 0x4000) {
         m_flags |= ModeInfo::Flag::VirtualStereo;
     }
+    if (flags & 0x40000) {
+        m_flags |= ModeInfo::Flag::Stereo3DSequentialLeftFirst;
+    }
+    if (flags & 0x80000) {
+        m_flags |= ModeInfo::Flag::Stereo3DSequentialRightFirst;
+    }
 
     if (flags & KDE_OUTPUT_DEVICE_MODE_V2_FLAGS_CUSTOM) {
         m_flags |= ModeInfo::Flag::Custom;
