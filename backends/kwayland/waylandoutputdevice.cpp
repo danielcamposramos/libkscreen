@@ -224,6 +224,12 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
         if (wlMode->flags() & ModeInfo::Flag::Stereo3DCheckerboardRightFirst) {
             mode->setStereo3D(Mode::Stereo3D::CheckerboardRightFirst);
         }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DSequentialLeftFirst) {
+            mode->setStereo3D(Mode::Stereo3D::SequentialLeftFirst);
+        }
+        if (wlMode->flags() & ModeInfo::Flag::Stereo3DSequentialRightFirst) {
+            mode->setStereo3D(Mode::Stereo3D::SequentialRightFirst);
+        }
         mode->setVirtualStereo(wlMode->flags() & ModeInfo::Flag::VirtualStereo);
 
         if (m_mode == wlMode) {
@@ -304,6 +310,10 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setHdrColorProfileSource(Output::ColorProfileSource(m_hdrColorProfileSource));
     output->setAnaglyph(m_anaglyph);
     output->setOtherStereoFormats(m_otherStereoFormats);
+    output->setStereoPairPartner(m_stereoPairPartner);
+    output->setStereoPairMode(static_cast<Output::StereoPairMode>(m_stereoPairMode));
+    output->setStereoPairRole(static_cast<Output::StereoPairRole>(m_stereoPairRole));
+    output->setStereoPairReflection(static_cast<Output::StereoPairReflection>(m_stereoPairReflection));
     output->setAbmLevel(m_abmLevel);
 
     updateKScreenModes(output);
@@ -503,6 +513,25 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_FORMATS_SINCE_VERSION
         && (m_anaglyph != output->anaglyph() || m_otherStereoFormats != output->otherStereoFormats())) {
         wlConfig->set_stereo_formats(object(), output->anaglyph(), output->otherStereoFormats());
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_PAIR_SINCE_VERSION
+        && (m_stereoPairPartner != output->stereoPairPartner()
+            || m_stereoPairMode != static_cast<uint32_t>(output->stereoPairMode())
+            || m_stereoPairRole != static_cast<uint32_t>(output->stereoPairRole())
+            || m_stereoPairReflection != static_cast<uint32_t>(output->stereoPairReflection()))) {
+        ::kde_output_device_v2 *partner = nullptr;
+        for (auto it = outputMap.cbegin(); it != outputMap.cend(); ++it) {
+            if (it.value()->uuid() == output->stereoPairPartner()) {
+                partner = it.value()->object();
+                break;
+            }
+        }
+        wlConfig->set_stereo_pair(object(), partner,
+                                  static_cast<uint32_t>(output->stereoPairMode()),
+                                  static_cast<uint32_t>(output->stereoPairRole()),
+                                  static_cast<uint32_t>(output->stereoPairReflection()));
+        changed = true;
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_ABM_LEVEL_SINCE_VERSION && m_abmLevel != output->abmLevel()) {
         wlConfig->set_abm_level(object(), output->abmLevel());
@@ -733,6 +762,14 @@ void WaylandOutputDevice::kde_output_device_v2_stereo_formats(uint32_t anaglyph,
 {
     m_anaglyph = anaglyph == 1;
     m_otherStereoFormats = otherStereoFormats == 1;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_stereo_pair(const QString &partner, uint32_t mode, uint32_t role, uint32_t reflection)
+{
+    m_stereoPairPartner = partner;
+    m_stereoPairMode = mode;
+    m_stereoPairRole = role;
+    m_stereoPairReflection = reflection;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_abm_level(uint32_t level)

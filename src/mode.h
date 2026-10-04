@@ -46,6 +46,8 @@ public:
         ColumnsRightFirst,
         CheckerboardLeftFirst,
         CheckerboardRightFirst,
+        SequentialLeftFirst,
+        SequentialRightFirst,
 
     };
     Q_ENUM(Stereo3D)
