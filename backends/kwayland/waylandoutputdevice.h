@@ -131,8 +131,12 @@ protected:
     void kde_output_device_v2_removed() override;
     void kde_output_device_v2_hdr_icc_profile_path(const QString &profile_path) override;
     void kde_output_device_v2_hdr_color_profile_source(uint32_t source) override;
+#ifdef KDE_OUTPUT_DEVICE_V2_STEREO_FORMATS_SINCE_VERSION
     void kde_output_device_v2_stereo_formats(uint32_t anaglyph, uint32_t otherStereoFormats) override;
+#endif
+#ifdef KDE_OUTPUT_DEVICE_V2_STEREO_PAIR_SINCE_VERSION
     void kde_output_device_v2_stereo_pair(const QString &partner, uint32_t mode, uint32_t role, uint32_t reflection) override;
+#endif
     void kde_output_device_v2_abm_level(uint32_t level) override;
 
 private:

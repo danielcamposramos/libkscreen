@@ -510,11 +510,14 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
         && m_hdrColorProfileSource != uint32_t(output->hdrColorProfileSource())) {
         wlConfig->set_hdr_color_profile_source(object(), uint32_t(output->hdrColorProfileSource()));
     }
+#ifdef KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_FORMATS_SINCE_VERSION
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_FORMATS_SINCE_VERSION
         && (m_anaglyph != output->anaglyph() || m_otherStereoFormats != output->otherStereoFormats())) {
         wlConfig->set_stereo_formats(object(), output->anaglyph(), output->otherStereoFormats());
         changed = true;
     }
+#endif
+#ifdef KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_PAIR_SINCE_VERSION
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_STEREO_PAIR_SINCE_VERSION
         && (m_stereoPairPartner != output->stereoPairPartner()
             || m_stereoPairMode != static_cast<uint32_t>(output->stereoPairMode())
@@ -533,6 +536,7 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
                                   static_cast<uint32_t>(output->stereoPairReflection()));
         changed = true;
     }
+#endif
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_ABM_LEVEL_SINCE_VERSION && m_abmLevel != output->abmLevel()) {
         wlConfig->set_abm_level(object(), output->abmLevel());
         changed = true;
@@ -758,12 +762,16 @@ void WaylandOutputDevice::kde_output_device_v2_hdr_color_profile_source(uint32_t
     m_hdrColorProfileSource = source;
 }
 
+#ifdef KDE_OUTPUT_DEVICE_V2_STEREO_FORMATS_SINCE_VERSION
 void WaylandOutputDevice::kde_output_device_v2_stereo_formats(uint32_t anaglyph, uint32_t otherStereoFormats)
 {
     m_anaglyph = anaglyph == 1;
     m_otherStereoFormats = otherStereoFormats == 1;
 }
 
+#endif
+
+#ifdef KDE_OUTPUT_DEVICE_V2_STEREO_PAIR_SINCE_VERSION
 void WaylandOutputDevice::kde_output_device_v2_stereo_pair(const QString &partner, uint32_t mode, uint32_t role, uint32_t reflection)
 {
     m_stereoPairPartner = partner;
@@ -771,6 +779,8 @@ void WaylandOutputDevice::kde_output_device_v2_stereo_pair(const QString &partne
     m_stereoPairRole = role;
     m_stereoPairReflection = reflection;
 }
+
+#endif
 
 void WaylandOutputDevice::kde_output_device_v2_abm_level(uint32_t level)
 {
